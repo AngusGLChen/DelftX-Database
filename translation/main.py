@@ -12,13 +12,9 @@ from translation.VideoMode import video_interaction
 from translation.QuizMode import quiz_mode, quiz_sessions
 
 
-def main(data_path):
+def main(data_path, user, password, host, database):
     
     # Database
-    user='root'
-    password=''
-    host='127.0.0.1'
-    database='DelftX'
     connection = mysql.connector.connect(user=user, password=password, host=host, database=database)
     cursor = connection.cursor()
     
@@ -112,8 +108,7 @@ def main(data_path):
                     os.remove(unzip_folder_path + log_file)
                     
                 # Translate the log files
-                log_path = "/Volumes/NETAC/EdX/Clear-out/" + log_folder + "/"
-                metadata_path = log_path
+                log_path = filter_file_path
                 
                 # 1. Learner Mode
                 learner_mode(metadata_path, cursor)
@@ -164,7 +159,11 @@ def main(data_path):
 if __name__ == '__main__':
     
     data_path = ""
-    main(data_path)
+    user='root'
+    password=''
+    host='127.0.0.1'
+    database='DelftX'
+    main(data_path, user, password, host, database)
     
     print "All finished."
 
