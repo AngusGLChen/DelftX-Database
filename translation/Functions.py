@@ -19,10 +19,12 @@ def ExtractCourseInformation(metadata_path):
             
             child_parent_map = {}
             element_time_map = {}
+            # Add and element_time_map_due to record the due of sequential
+            element_time_map_due = {}
             element_type_map = {}
             element_without_time = []
             
-            quiz_question_array = []
+            quiz_question_map = {}
             block_type_map = {}
             
             jsonObject = json.loads(course_structure_file.read())
@@ -88,14 +90,27 @@ def ExtractCourseInformation(metadata_path):
                         element_start_time = datetime.datetime.strptime(element_start_time,"%Y-%m-%d %H:%M:%S")
                         element_time_map[element_id] = element_start_time
                     else:
-                        element_without_time.append(element_id)                      
+                        element_without_time.append(element_id)
+
+                    # Element due time
+                    if "due" in jsonObject[element_id]["metadata"]:
+                        element_due_time = jsonObject[element_id]["metadata"]["due"]
+                        element_due_time = element_due_time[0:19]
+                        element_due_time = element_due_time.replace("T", " ")                    
+                        element_due_time = datetime.datetime.strptime(element_due_time,"%Y-%m-%d %H:%M:%S")
+                        element_time_map_due[element_id] = element_due_time                     
                     
                     # Element type
                     element_type_map[element_id] = jsonObject[element_id]["category"]
                     
                     # Quiz questions
                     if jsonObject[element_id]["category"] == "problem":
-                        quiz_question_array.append(element_id)
+                        # quiz_question_map.append(element_id)
+                        if jsonObject[element_id]["metadata"].has_key("weight"):
+                            quiz_question_map[element_id] = jsonObject[element_id]["metadata"]["weight"]
+                        else:
+                            # By default the weight is 1?
+                            quiz_question_map[element_id] = 1.0
                         
                     # Types of blocks to which quiz questions belong
                     if jsonObject[element_id]["category"] == "sequential":
@@ -121,8 +136,9 @@ def ExtractCourseInformation(metadata_path):
                     element_time_map.pop(element_id)
                 
             course_metadata_map["element_time_map"] = element_time_map
+            course_metadata_map["element_time_map_due"] = element_time_map_due
             course_metadata_map["element_type_map"] = element_type_map
-            course_metadata_map["quiz_question_array"] = quiz_question_array
+            course_metadata_map["quiz_question_map"] = quiz_question_map
             course_metadata_map["child_parent_map"] = child_parent_map
             course_metadata_map["block_type_map"] = block_type_map
                     

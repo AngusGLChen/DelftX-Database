@@ -21,14 +21,26 @@ def quiz_mode(metadata_path, log_path, cursor):
     # Collect course information
     course_metadata_map = ExtractCourseInformation(metadata_path)
     
-    quiz_question_array = course_metadata_map["quiz_question_array"]
+    quiz_question_map = course_metadata_map["quiz_question_map"]
     block_type_map = course_metadata_map["block_type_map"]
-    for question_id in quiz_question_array:    
-        quiz_question_parent = course_metadata_map["child_parent_map"][question_id]                
+    element_time_map_due = course_metadata_map["element_time_map_due"]
+
+    for question_id in quiz_question_map:
+
+        question_due = ""
+        
+        question_weight = quiz_question_map[question_id]
+        quiz_question_parent = course_metadata_map["child_parent_map"][question_id]
+        if (question_due == "") and (quiz_question_parent in element_time_map_due):
+            question_due = element_time_map_due[quiz_question_parent]
+
         while not block_type_map.has_key(quiz_question_parent):
-            quiz_question_parent = course_metadata_map["child_parent_map"][quiz_question_parent]        
+            quiz_question_parent = course_metadata_map["child_parent_map"][quiz_question_parent]
+            if (question_due == "") and (quiz_question_parent in element_time_map_due):
+                question_due = element_time_map_due[quiz_question_parent]        
+        
         quiz_question_type = block_type_map[quiz_question_parent]
-        array = [question_id, quiz_question_type]
+        array = [question_id, quiz_question_type, question_weight, question_due]
         quiz_question_record.append(array)          
                             
     # Processing events data
@@ -65,6 +77,7 @@ def quiz_mode(metadata_path, log_path, cursor):
 
     log_files = os.listdir(log_path)
     
+    submission_uni_index = 0
     while True:
         
         if current_date == end_next_date:
@@ -111,7 +124,8 @@ def quiz_mode(metadata_path, log_path, cursor):
                 
                             if question_id != "":
                                 
-                                submission_id = course_learner_id + "_" + question_id
+                                submission_id = course_learner_id + "_" + question_id + "_" + str(submission_uni_index)
+                                submission_uni_index = submission_uni_index + 1
                             
                                 # For submissions
                                 array = [submission_id, course_learner_id, question_id, event_time]
@@ -139,8 +153,10 @@ def quiz_mode(metadata_path, log_path, cursor):
     for array in quiz_question_record:
         question_id = array[0]
         question_type = array[1]
-        sql = "insert into quiz_questions(question_id, question_type) values"
-        sql += "('%s','%s');" % (question_id, question_type)                    
+        question_weight = array[2]
+        question_due = array[3]
+        sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values"
+        sql += "('%s','%s','%s','%s');" % (question_id, question_type, question_weight, question_due)                    
         cursor.execute(sql)
         
     # Submissions table

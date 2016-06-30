@@ -4,6 +4,13 @@ Created on Jun 11, 2016
 @author: Angus
 '''
 
+'''
+Update 1: skip logs with user_id ""
+
+Updated on Jun 30, 2016
+@author Yue
+'''
+
 
 import os,json,datetime,csv,operator
 from time import *
@@ -153,6 +160,9 @@ def forum_sessions(metadata_path, log_path, cursor):
                 for line in lines:
                     
                     jsonObject = json.loads(line)
+
+                    if jsonObject["context"]["user_id"] == "":
+                        continue
                     
                     # For forum session separation
                     global_learner_id = jsonObject["context"]["user_id"]

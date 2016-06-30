@@ -79,9 +79,11 @@ DROP TABLE IF EXISTS `quiz_questions`;
 CREATE TABLE `quiz_questions` (
 question_id varchar(255) NOT NULL,
 question_type varchar(255),
+question_weight float,
+question_due datetime,
 PRIMARY KEY (question_id),
 FOREIGN KEY (question_id) REFERENCES course_elements(element_id),
-KEY `index` (`question_id`, `question_type`)
+KEY `index` (`question_id`, `question_type`, `question_weight`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `submissions`;
