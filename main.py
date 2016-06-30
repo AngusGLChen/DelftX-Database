@@ -59,6 +59,8 @@ def main(argv):
 
     # All the configs are read as string
     data_path = config.get("data", "path")
+    remove_filtered_logs = config.get("data", "remove_filtered_logs")
+
     user = config.get("mysqld", "user")
     password = config.get("mysqld", "password")
     host = config.get("mysqld", "host")
@@ -222,9 +224,10 @@ def main(argv):
                 # need to save space on your computer
                 #
                 ##################################
-                # log_files = os.listdir(log_path)
-                # for log_file in log_files:
-                #     os.remove(log_path + log_file)
+                if remove_filtered_logs == "1":
+                    log_files = os.listdir(log_path)
+                    for log_file in log_files:
+                        os.remove(log_path + log_file)
                 
                 # Record translated course
                 output_file.write(log_folder + "\n")

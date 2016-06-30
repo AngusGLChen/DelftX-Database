@@ -6,3 +6,4 @@ database = DelftX
 
 [data]
 path = /Volumes/XXXX/XXXX/
+remove_filtered_logs = 0
