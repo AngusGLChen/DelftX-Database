@@ -14,9 +14,9 @@ sys.setdefaultencoding('utf-8')
 
 def quiz_mode(metadata_path, log_path, cursor):
     
-    quiz_question_record = []
-    submissions = {}
-    assessments = {}
+    # quiz_question_record = []
+    # submissions = {}
+    # assessments = {}
     
     # Collect course information
     course_metadata_map = ExtractCourseInformation(metadata_path)
@@ -40,8 +40,11 @@ def quiz_mode(metadata_path, log_path, cursor):
                 question_due = element_time_map_due[quiz_question_parent]        
         
         quiz_question_type = block_type_map[quiz_question_parent]
-        array = [question_id, quiz_question_type, question_weight, question_due]
-        quiz_question_record.append(array)          
+        # array_quiz = [question_id, quiz_question_type, question_weight, question_due]
+        # quiz_question_record.append(array_quiz)
+        sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values"
+        sql += "('%s','%s','%s','%s');" % (question_id, quiz_question_type, question_weight, question_due)                    
+        cursor.execute(sql)          
                             
     # Processing events data
     submission_event_collection = []
@@ -128,56 +131,64 @@ def quiz_mode(metadata_path, log_path, cursor):
                                 submission_uni_index = submission_uni_index + 1
                             
                                 # For submissions
-                                array = [submission_id, course_learner_id, question_id, event_time]
-                                submissions[submission_id] = array 
+                                # array_submission = [submission_id, course_learner_id, question_id, event_time]
+                                # submissions[submission_id] = array_submission
+                                submission_timestamp = event_time
+                                sql = "insert into submissions(submission_id, course_learner_id, question_id, submission_timestamp) values"
+                                sql += "('%s','%s','%s','%s');" % (submission_id, course_learner_id, question_id, submission_timestamp)
+                                cursor.execute(sql) 
                             
                                 # For assessments
                                 if grade != "" and max_grade != "":
-                                    array = [submission_id, course_learner_id, max_grade, grade]
-                                    assessments[submission_id] = array
+                                    # array_assessment = [submission_id, course_learner_id, max_grade, grade]
+                                    # assessments[submission_id] = array_assessment
+                                    assessment_id = submission_id
+                                    sql = "insert into assessments(assessment_id, course_learner_id, max_grade, grade) values"
+                                    sql += "('%s','%s','%s','%s');" % (assessment_id, course_learner_id, max_grade, grade)
+                                    cursor.execute(sql)
                                         
         
         current_date = getNextDay(current_date)
         
-    submission_record = []
-    assessment_record = []
+    # submission_record = []
+    # assessment_record = []
     
-    for submission_id in submissions.keys():
-        submission_record.append(submissions[submission_id])
+    # for submission_id in submissions.keys():
+    #     submission_record.append(submissions[submission_id])
         
-    for assessment_id in assessments.keys():
-        assessment_record.append(assessments[assessment_id])
+    # for assessment_id in assessments.keys():
+    #     assessment_record.append(assessments[assessment_id])
     
     # Database version
     # Quiz_question table
-    for array in quiz_question_record:
-        question_id = array[0]
-        question_type = array[1]
-        question_weight = array[2]
-        question_due = array[3]
-        sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values"
-        sql += "('%s','%s','%s','%s');" % (question_id, question_type, question_weight, question_due)                    
-        cursor.execute(sql)
+    # for array in quiz_question_record:
+    #     question_id = array[0]
+    #     question_type = array[1]
+    #     question_weight = array[2]
+    #     question_due = array[3]
+    #     sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values"
+    #     sql += "('%s','%s','%s','%s');" % (question_id, question_type, question_weight, question_due)                    
+    #     cursor.execute(sql)
         
     # Submissions table
-    for array in submission_record:
-        submission_id = array[0]
-        course_learner_id = array[1]
-        question_id = array[2]
-        submission_timestamp = array[3]
-        sql = "insert into submissions(submission_id, course_learner_id, question_id, submission_timestamp) values"
-        sql += "('%s','%s','%s','%s');" % (submission_id, course_learner_id, question_id, event_time)
-        cursor.execute(sql)
+    # for array in submission_record:
+    #     submission_id = array[0]
+    #     course_learner_id = array[1]
+    #     question_id = array[2]
+    #     submission_timestamp = array[3]
+    #     sql = "insert into submissions(submission_id, course_learner_id, question_id, submission_timestamp) values"
+    #     sql += "('%s','%s','%s','%s');" % (submission_id, course_learner_id, question_id, submission_timestamp)
+    #     cursor.execute(sql)
         
     # Submissions table
-    for array in assessment_record:
-        assessment_id = array[0]
-        course_learner_id = array[1]
-        max_grade = array[2]
-        grade = array[3]
-        sql = "insert into assessments(assessment_id, course_learner_id, max_grade, grade) values"
-        sql += "('%s','%s','%s','%s');" % (assessment_id, course_learner_id, max_grade, grade)
-        cursor.execute(sql)
+    # for array in assessment_record:
+    #     assessment_id = array[0]
+    #     course_learner_id = array[1]
+    #     max_grade = array[2]
+    #     grade = array[3]
+    #     sql = "insert into assessments(assessment_id, course_learner_id, max_grade, grade) values"
+    #     sql += "('%s','%s','%s','%s');" % (assessment_id, course_learner_id, max_grade, grade)
+    #     cursor.execute(sql)
 
     ''' 
     # File version
