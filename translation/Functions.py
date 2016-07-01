@@ -130,10 +130,26 @@ def ExtractCourseInformation(metadata_path):
                     element_start_time = element_time_map[element_parent]
                 element_time_map[element_id] = element_start_time
                 
-            # Remove deleted elements
-            for element_id in element_time_map.keys():
-                if element_time_map[element_id] < course_metadata_map["start_time"]:
-                    element_time_map.pop(element_id)
+            ######################################################
+            ############## Removing deleted elements #############
+            ######################################################
+            # Here is a problem. 
+            # Some contents set before course start time are deleted
+            # But some of them are reserved.
+            #
+            # Therefore, we cannot justify if an element deleted or not
+            # just based on their creation time.
+            # If there is a clear tag which shows whether 
+            # those elements are deleted or not, it would be better.
+            #
+            # For now, we keep all of them 
+            # and treat them as elements created in the 1st week.
+            # -- Yue 
+            ######################################################
+
+            # for element_id in element_time_map.keys():
+            #     if element_time_map[element_id] < course_metadata_map["start_time"]:
+            #         element_time_map.pop(element_id)
                 
             course_metadata_map["element_time_map"] = element_time_map
             course_metadata_map["element_time_map_due"] = element_time_map_due
