@@ -4,7 +4,7 @@ Created on Jun 16, 2016
 @author: Angus
 '''
 
-import os,json,datetime
+import os,json,datetime,sys
 
 def ExtractCourseInformation(metadata_path):
     
@@ -150,7 +150,7 @@ def ExtractCourseInformation(metadata_path):
 def getDayDiff(beginDate,endDate):
     oneday = datetime.timedelta(days=1)  
     count = 0
-    while (endDate - beginDate) > oneday:  
+    while (endDate - beginDate) >= oneday:  
         endDate = endDate - oneday
         count += 1
     return count
@@ -170,6 +170,24 @@ def cmp_datetime(a_datetime, b_datetime):
     elif a_datetime > b_datetime:
         return 1
     else:
-        return 0 
+        return 0
+
+# This main function is used to test above functions
+def main(argv):
+    begindate_str = argv[0]
+    begindate_str = begindate_str.replace("T", " ")
+    begindate = datetime.datetime.strptime(begindate_str,"%Y-%m-%d %H:%M:%S")
+    print begindate
+    enddate_str = argv[1]
+    enddate_str = enddate_str.replace("T", " ")   
+    enddate = datetime.datetime.strptime(enddate_str,"%Y-%m-%d %H:%M:%S")
+    print enddate
+    daydiff = getDayDiff(begindate, enddate)
+    print daydiff
+    print (daydiff/7 + 1)
+
+if __name__ == '__main__':
+
+    main(sys.argv[1:])
 
 
