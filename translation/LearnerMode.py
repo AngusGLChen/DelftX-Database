@@ -23,8 +23,12 @@ def learner_mode(metadata_path, cursor):
     # Course_element table     
     for element_id in course_metadata_map["element_time_map"].keys():
                 
-        element_start_time = course_metadata_map["element_time_map"][element_id]     
-        week = getDayDiff(course_metadata_map["start_time"], element_start_time) / 7 + 1
+        element_start_time = course_metadata_map["element_time_map"][element_id]
+        # Some contents released just one hour earlier than the hour of start time.
+        # For example, start time is 2015-10-15 09:00:00, while 2nd week contents' release time is 2015-10-22 08:00:00.
+        # However, those 2nd week contents are count as 1st week.
+        # In order to avoid above situation, I use date to replace datetime here.
+        week = getDayDiff(course_metadata_map["start_time"].date(), element_start_time.date()) / 7 + 1
         
         array = [element_id, course_metadata_map["element_type_map"][element_id], week, course_metadata_map["course_id"]]
         course_element_record.append(array)

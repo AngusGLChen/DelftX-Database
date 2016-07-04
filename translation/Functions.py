@@ -190,14 +190,19 @@ def cmp_datetime(a_datetime, b_datetime):
 
 # This main function is used to test above functions
 def main(argv):
-    begindate_str = argv[0]
-    begindate_str = begindate_str.replace("T", " ")
-    begindate = datetime.datetime.strptime(begindate_str,"%Y-%m-%d %H:%M:%S")
-    print begindate
-    enddate_str = argv[1]
-    enddate_str = enddate_str.replace("T", " ")   
-    enddate = datetime.datetime.strptime(enddate_str,"%Y-%m-%d %H:%M:%S")
-    print enddate
+    begindatetime_str = argv[0]
+    begindatetime_str = begindatetime_str.replace("T", " ")
+    begindatetime = datetime.datetime.strptime(begindatetime_str,"%Y-%m-%d %H:%M:%S")
+    print begindatetime
+    begindate = begindatetime.date()
+    enddatetime_str = argv[1]
+    enddatetime_str = enddatetime_str.replace("T", " ")   
+    enddatetime = datetime.datetime.strptime(enddatetime_str,"%Y-%m-%d %H:%M:%S")
+    print enddatetime
+    enddate = enddatetime.date()
+    daydiff = getDayDiff(begindatetime, enddatetime)
+    print daydiff
+    print (daydiff/7 + 1)
     daydiff = getDayDiff(begindate, enddate)
     print daydiff
     print (daydiff/7 + 1)
