@@ -44,8 +44,8 @@
 
 8. Installing Connector/Python 
     * Please check the documents [MySQL Connector/Python Developer Guide](https://dev.mysql.com/doc/connector-python/en/connector-python-installation-binary.html)
-    * (MAC OSX) users can install it by ```sudo pip install mysql-connector-repackaged```
-    * Checking if the package installed by using ```import mysql.connector``` 
+    * Checking if the package installed by using ```import mysql.connector```
+    * Checking if the package version correct by using ```print mysql.connector.__version__```. It should be >= 2.1.3, since we use ```utf8mb4``` in encoding, which may not be supported by some earlier versions.
 
 ### 1.3 Building the database
 
@@ -135,20 +135,6 @@
 	            --  ...  
 	```
 	```filter_folder``` contains filtered daily logs for the specific course. It can be removed after course data loaded into the database (by seeting in the config file). 
-  
-
-### 2.1 Problems you may meet
-
-1. If ```null``` cannot be added into integer/float columns in some tables, changing the mode of MySQL to non-strict.
-    * mkdir ```mysql``` in folder ```/etc```
-    * ```sudo vi etc/mysql/my.cnf```
-    * Adding content into ```my.cnf```
-    
-    ```
-    [mysqld]
-    sql_mode=NO_ENGINE_SUBSTITUTION
-    ```
-    * Restarting MySQL Server
 
 
 ## 3. Relations with The Moocdb Project
