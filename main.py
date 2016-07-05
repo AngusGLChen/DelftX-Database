@@ -68,7 +68,7 @@ def main(argv):
     database = config.get("mysqld", "database")
     
     # Database
-    connection = mysql.connector.connect(user=user, password=password, host=host, database=database)
+    connection = mysql.connector.connect(user=user, password=password, host=host, database=database, charset='utf8mb4')
     cursor = connection.cursor()
     
     # Gather the list of translated courses

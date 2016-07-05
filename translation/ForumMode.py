@@ -16,6 +16,7 @@ import os,json,datetime,csv,operator
 from time import *
 from translation.Functions import ExtractCourseInformation,getNextDay,cmp_datetime
 
+import unicodedata
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -108,9 +109,11 @@ def forum_interaction(metadata_path, cursor):
     output_file.close()
     '''
 
-# removes really weird unicode characters
+# provides unicode encoding compatible iwth mysql
 def cleanUnicode(text):
-    return text;
+    #return text;
+    return unicodedata.normalize('NFC', text);
+    #return unicodedata.normalize('NFKD', text).encode('utf8', 'ignore');
 
 def forum_sessions(metadata_path, log_path, cursor):
     
