@@ -1,5 +1,5 @@
 DROP DATABASE IF EXISTS DelftX;
-CREATE DATABASE DelftX CHARACTER SET `latin1`;
+CREATE DATABASE DelftX CHARACTER SET `utf8`;
 
 USE DelftX;
 
@@ -9,8 +9,7 @@ course_id varchar(255) NOT NULL,
 course_name varchar(255),
 start_time datetime,
 end_time datetime,
-PRIMARY KEY (course_id),
-INDEX `index` (`course_id`)
+PRIMARY KEY (course_id)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `learner_demographic`;
@@ -23,7 +22,8 @@ country varchar(255),
 email varchar(255),
 PRIMARY KEY (course_learner_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`course_learner_id`(50), `gender`, `year_of_birth`, `level_of_education`, `country`)
+INDEX `index_birth` (`year_of_birth`),
+INDEX `index_country` (`country`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `learner_index`;
@@ -34,7 +34,8 @@ course_learner_id varchar(255) NOT NULL,
 PRIMARY KEY (course_learner_id),
 FOREIGN KEY (course_id) REFERENCES courses(course_id),
 FOREIGN KEY (global_learner_id) REFERENCES learner_demographic(global_learner_id),
-INDEX `index` (`global_learner_id`, `course_id`, `course_learner_id`)
+INDEX `index_cid` (`course_id`),
+INDEX `index_clid` (`course_learner_id`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `course_learner`;
@@ -46,7 +47,8 @@ certificate_status varchar(255),
 register_time datetime,
 PRIMARY KEY (course_learner_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`course_learner_id`, `enrollment_mode`, `certificate_status`)
+INDEX `index_enrollment` (`enrollment_mode`),
+INDEX `index_certificate` (`certificate_status`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `course_elements`;
@@ -57,7 +59,9 @@ week int,
 course_id varchar(255),
 PRIMARY KEY (element_id),
 FOREIGN KEY (course_id) REFERENCES courses(course_id),
-INDEX `index` (`element_id`, `element_type`, `week`, `course_id`)
+INDEX `index_type` ( `element_type`),
+INDEX `index_week` ( `week`),
+INDEX `index_courseid` (`course_id`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `sessions`;
@@ -69,7 +73,7 @@ end_time datetime,
 duration int,
 PRIMARY KEY (session_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`session_id`, `course_learner_id`)
+INDEX `index` (`course_learner_id`)
 ) ENGINE=MyISAM;
 
 
@@ -83,7 +87,7 @@ question_weight float,
 question_due datetime,
 PRIMARY KEY (question_id),
 FOREIGN KEY (question_id) REFERENCES course_elements(element_id),
-INDEX `index` (`question_id`, `question_type`, `question_weight`)
+INDEX `index_type` (`question_type`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `submissions`;
@@ -95,7 +99,8 @@ submission_timestamp datetime,
 PRIMARY KEY (submission_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
 FOREIGN KEY (question_id) REFERENCES course_elements(element_id),
-INDEX `index` (`submission_id`, `course_learner_id`, `question_id`)
+INDEX `index_c` (`course_learner_id`),
+INDEX `index_q` (`question_id`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `assessments`;
@@ -107,7 +112,7 @@ grade float,
 PRIMARY KEY (assessment_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
 FOREIGN KEY (assessment_id) REFERENCES submissions(submission_id),
-INDEX `index` (`assessment_id`, `course_learner_id`, `max_grade`, `grade`)
+INDEX `index` (`course_learner_id`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `quiz_sessions`;
@@ -119,7 +124,7 @@ end_time datetime,
 duration int,
 PRIMARY KEY (session_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`session_id`, `course_learner_id`)
+INDEX `index` (`course_learner_id`)
 ) ENGINE=MyISAM;
 
 
@@ -164,7 +169,8 @@ post_parent_id varchar(255),
 post_thread_id varchar(255),
 PRIMARY KEY (post_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`post_id`, `course_learner_id`, `post_type`)
+INDEX `index` (`course_learner_id`),
+INDEX `index_pt` (`post_type`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `forum_sessions`;
@@ -177,7 +183,7 @@ end_time datetime,
 duration int,
 PRIMARY KEY (session_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`session_id`, `course_learner_id`)
+INDEX `index` (`course_learner_id`)
 ) ENGINE=MyISAM;
 
 
@@ -190,7 +196,8 @@ question_type varchar(255),
 question_description text,
 PRIMARY KEY (question_id),
 FOREIGN KEY (course_id) REFERENCES courses(course_id),
-INDEX `index` (`question_id`, `course_id`, `question_type`)
+INDEX `index` (`course_id`),
+INDEX `index_q` (`question_type`)
 ) ENGINE=MyISAM;
 
 DROP TABLE IF EXISTS `survey_responses`;
@@ -201,6 +208,7 @@ question_id varchar(255),
 answer text,
 PRIMARY KEY (response_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
-INDEX `index` (`response_id`, `course_learner_id`, `question_id`)
+INDEX `index` (`course_learner_id`),
+INDEX `index_q` (`question_id`)
 ) ENGINE=MyISAM;
 
