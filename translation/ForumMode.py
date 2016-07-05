@@ -12,9 +12,9 @@ Updated on Jun 30, 2016
 '''
 
 
-import os,json,datetime,csv,operator
+import os, json, datetime, csv, operator
 from time import *
-from translation.Functions import ExtractCourseInformation,getNextDay,cmp_datetime
+from translation.Functions import ExtractCourseInformation, getNextDay, cmp_datetime, process_null
 
 import unicodedata
 import sys
@@ -94,7 +94,7 @@ def forum_interaction(metadata_path, cursor):
         post_timestamp = array[5]
         post_parent_id = array[6]
         post_thread_id = array[7]
-        sql = "insert into forum_interaction(post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id) values (%s,%s,%s,%s,%s,%s,%s, %s);"
+        sql = "insert into forum_interaction(post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id) values (%s,%s,%s,%s,%s,%s,%s,%s);"
         data = (post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id)
 
         cursor.execute(sql, data)
@@ -283,13 +283,13 @@ def forum_sessions(metadata_path, log_path, cursor):
     for array in forum_sessions_record:
         session_id = array[0]
         course_learner_id = array[1]
-        times_search = array[2]
+        times_search = process_null(array[2])
         start_time = array[3]
         end_time = array[4]
-        duration = array[5]
-        sql = "insert into forum_sessions (session_id, course_learner_id, times_search, start_time, end_time, duration) values"
-        sql += "('%s','%s','%s','%s', '%s','%s');" % (session_id, course_learner_id, times_search, start_time, end_time, duration)
-        cursor.execute(sql)
+        duration = process_null(array[5])
+        sql = "insert into forum_sessions (session_id, course_learner_id, times_search, start_time, end_time, duration) values (%s,%s,%s,%s,%s,%s)"
+        data = (session_id, course_learner_id, times_search, start_time, end_time, duration)
+        cursor.execute(sql, data)
             
     # File version
     '''

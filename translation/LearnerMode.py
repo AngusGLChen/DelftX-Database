@@ -4,9 +4,9 @@ Created on Jun 16, 2016
 @author: Angus
 '''
 
-import os,json,csv,datetime,operator
-from translation.Functions import ExtractCourseInformation,cmp_datetime,getDayDiff,getNextDay
-       
+import os, json, csv, datetime, operator
+from translation.Functions import ExtractCourseInformation, cmp_datetime, getDayDiff, getNextDay, process_null
+
     
 def learner_mode(metadata_path, cursor):
     
@@ -141,43 +141,43 @@ def learner_mode(metadata_path, cursor):
         course_name = course_metadata_map["course_name"]
         start_time = course_metadata_map["start_time"]
         end_time = course_metadata_map["end_time"]
-        sql = "insert into courses(course_id, course_name, start_time, end_time) values"
-        sql += "('%s','%s','%s','%s');" % (course_id, course_name, start_time, end_time)
-        cursor.execute(sql)
+        sql = "insert into courses(course_id, course_name, start_time, end_time) values (%s,%s,%s,%s)" 
+        data = (course_id, course_name, start_time, end_time)
+        cursor.execute(sql, data)
         
     for array in course_element_record:
         element_id = array[0]
         element_type = array[1]
-        week = array[2]
+        week = process_null(array[2])
         course_id = array[3]
-        sql = "insert into course_elements(element_id, element_type, week, course_id) values"
-        sql += "('%s','%s','%s','%s');" % (element_id, element_type, week, course_id)
-        cursor.execute(sql)
+        sql = "insert into course_elements(element_id, element_type, week, course_id) values (%s,%s,%s,%s)" 
+        data = (element_id, element_type, week, course_id)
+        cursor.execute(sql, data)
     
     # Learner_index table
     for array in learner_index_record:
         global_learner_id = array[0]
         course_id = array[1]
-        course_learner_id= array[2]
-        sql = "insert into learner_index(global_learner_id, course_id, course_learner_id) values"
-        sql += "('%s','%s','%s');" % (global_learner_id, course_id, course_learner_id)
-        cursor.execute(sql)
+        course_learner_id = array[2]
+        sql = "insert into learner_index(global_learner_id, course_id, course_learner_id) values (%s,%s,%s)"
+        data = (global_learner_id, course_id, course_learner_id)
+        cursor.execute(sql, data)
     
     # Course_learner table
     for array in course_learner_record:
         course_learner_id = array[0]
-        final_grade = array[1]
+        final_grade = process_null(array[1])
         enrollment_mode = array[2]
         certificate_status = array[3]
-        sql = "insert into course_learner(course_learner_id, final_grade, enrollment_mode, certificate_status) values"
-        sql += "('%s','%s','%s','%s');" % (course_learner_id, final_grade, enrollment_mode, certificate_status)
-        cursor.execute(sql)
+        sql = "insert into course_learner(course_learner_id, final_grade, enrollment_mode, certificate_status) values (%s,%s,%s,%s)"
+        data = (course_learner_id, final_grade, enrollment_mode, certificate_status)
+        cursor.execute(sql, data)
     
     # Learner_demographic table
     for array in learner_demographic_record:
-        course_learner_id = array[0]
+        course_learner_id = process_null(array[0])
         gender = array[1]
-        year_of_birth = process_null(array[2])
+        year_of_birth = process_null(process_null(array[2]))
         level_of_education = array[3]
         country = array[4]
         email = array[5]
@@ -197,13 +197,6 @@ def learner_mode(metadata_path, cursor):
             writer.writerow(array)
         output_file.close()
     '''
-
-
-# takes an input string, and either returns if the string is 'NONE' or '', or the original string otherwise
-def process_null(inputString):
-    if len(inputString)==0 or inputString=='NULL':
-        return None
-    return inputString
         
 def sessions(metadata_path, log_path, cursor):
     
@@ -354,10 +347,10 @@ def sessions(metadata_path, log_path, cursor):
         course_learner_id = array[1]
         start_time = array[2]
         end_time = array[3]
-        duration = array[4]
-        sql = "insert into sessions(session_id, course_learner_id, start_time, end_time, duration) values"
-        sql += "('%s','%s','%s','%s','%s');" % (session_id, course_learner_id, start_time, end_time, duration)
-        cursor.execute(sql)
+        duration = process_null(array[4])
+        sql = "insert into sessions(session_id, course_learner_id, start_time, end_time, duration) values (%s,%s,%s,%s,%s)"
+        data = (session_id, course_learner_id, start_time, end_time, duration)
+        cursor.execute(sql, data)
         
             
     # File version

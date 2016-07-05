@@ -4,7 +4,7 @@ Created on Jun 16, 2016
 @author: Angus
 '''
 
-import os,csv,mysql.connector
+import os, csv, mysql.connector
 from translation.Functions import ExtractCourseInformation
 
 import sys
@@ -101,18 +101,18 @@ def survey_mode(metadata_path, survey_path, cursor, pre_id_index, post_id_index)
         course_id = array[1]
         question_type = array[2]
         question_description = array[3]
-        sql = "insert into survey_descriptions (question_id, course_id, question_type, question_description) values"
-        sql += "('%s','%s','%s','%s');\r\n" % (question_id, course_id, question_type, question_description) 
-        cursor.execute(sql)
+        sql = "insert into survey_descriptions (question_id, course_id, question_type, question_description) values (%s,%s,%s,%s)"
+        data = (question_id, course_id, question_type, question_description) 
+        cursor.execute(sql, data)
         
     for array in response_records:
         response_id = array[0]
         course_learner_id = array[1]
         question_id = array[2]
         answer = array[3]
-        sql = "insert into survey_responses (response_id, course_learner_id, question_id, answer) values"
-        sql += "('%s','%s','%s','%s');\r\n" % (response_id, course_learner_id, question_id, answer)
-        cursor.execute(sql)
+        sql = "insert into survey_responses (response_id, course_learner_id, question_id, answer) values (%s,%s,%s,%s)"
+        data = (response_id, course_learner_id, question_id, answer)
+        cursor.execute(sql, data)
     '''               
     # File version
     output_path = "/Users/Angus/Downloads/survey_descriptions"

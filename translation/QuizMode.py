@@ -4,8 +4,8 @@ Created on Jun 18, 2016
 @author: Angus
 '''
 
-import os,json,datetime,csv,operator
-from translation.Functions import ExtractCourseInformation, getNextDay,cmp_datetime
+import os, json, datetime, csv, operator
+from translation.Functions import ExtractCourseInformation, getNextDay, cmp_datetime, process_null
 
 import sys
 reload(sys)
@@ -42,9 +42,9 @@ def quiz_mode(metadata_path, log_path, cursor):
         quiz_question_type = block_type_map[quiz_question_parent]
         # array_quiz = [question_id, quiz_question_type, question_weight, question_due]
         # quiz_question_record.append(array_quiz)
-        sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values"
-        sql += "('%s','%s','%s','%s');" % (question_id, quiz_question_type, question_weight, question_due)                    
-        cursor.execute(sql)          
+        sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values (%s,%s,%s,%s)"
+        data = (question_id, quiz_question_type, question_weight, question_due)                    
+        cursor.execute(sql, data)          
                             
     # Processing events data
     submission_event_collection = []
@@ -134,18 +134,18 @@ def quiz_mode(metadata_path, log_path, cursor):
                                 # array_submission = [submission_id, course_learner_id, question_id, event_time]
                                 # submissions[submission_id] = array_submission
                                 submission_timestamp = event_time
-                                sql = "insert into submissions(submission_id, course_learner_id, question_id, submission_timestamp) values"
-                                sql += "('%s','%s','%s','%s');" % (submission_id, course_learner_id, question_id, submission_timestamp)
-                                cursor.execute(sql) 
+                                sql = "insert into submissions(submission_id, course_learner_id, question_id, submission_timestamp) values (%s,%s,%s,%s)"
+                                data = (submission_id, course_learner_id, question_id, submission_timestamp)
+                                cursor.execute(sql, data) 
                             
                                 # For assessments
                                 if grade != "" and max_grade != "":
                                     # array_assessment = [submission_id, course_learner_id, max_grade, grade]
                                     # assessments[submission_id] = array_assessment
                                     assessment_id = submission_id
-                                    sql = "insert into assessments(assessment_id, course_learner_id, max_grade, grade) values"
-                                    sql += "('%s','%s','%s','%s');" % (assessment_id, course_learner_id, max_grade, grade)
-                                    cursor.execute(sql)
+                                    sql = "insert into assessments(assessment_id, course_learner_id, max_grade, grade) values (%s,%s,%s,%s)"
+                                    data = (assessment_id, course_learner_id, max_grade, grade)
+                                    cursor.execute(sql, data)
                                         
         
         current_date = getNextDay(current_date)
@@ -429,10 +429,10 @@ def quiz_sessions(metadata_path, log_path, cursor):
         course_learner_id = array[1]
         start_time = array[2]
         end_time = array[3]
-        duration = array[4]
-        sql = "insert into quiz_sessions (session_id, course_learner_id, start_time, end_time, duration) values"
-        sql += "('%s','%s','%s','%s','%s');" % (session_id, course_learner_id, start_time, end_time, duration)
-        cursor.execute(sql)
+        duration = process_null(array[4])
+        sql = "insert into quiz_sessions (session_id, course_learner_id, start_time, end_time, duration) values (%s,%s,%s,%s,%s)"
+        data = (session_id, course_learner_id, start_time, end_time, duration)
+        cursor.execute(sql, data)
     
     ''' 
     # File version

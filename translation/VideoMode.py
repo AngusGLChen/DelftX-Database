@@ -4,8 +4,8 @@ Created on Jun 17, 2016
 @author: Angus
 '''
 
-import os,json,csv,time,datetime,operator
-from translation.Functions import ExtractCourseInformation, getNextDay,cmp_datetime
+import os, json, csv, time, datetime, operator
+from translation.Functions import ExtractCourseInformation, getNextDay, cmp_datetime, process_null
 
 
 def video_interaction(metadata_path, log_path, cursor):
@@ -365,20 +365,20 @@ def video_interaction(metadata_path, log_path, cursor):
         interaction_id = array[0]
         course_learner_id = array[1]
         video_id = array[2]
-        duration = array[3]
-        times_forward_seek = array[4]
-        duration_forward_seek = array[5]
-        times_backward_seek = array[6]
-        duration_backward_seek = array[7]
-        times_speed_up = array[8]
-        times_speed_down = array[9]
-        times_pause = array[10]
-        duration_pause = array[11]
+        duration = process_null(array[3])
+        times_forward_seek = process_null(array[4])
+        duration_forward_seek = process_null(array[5])
+        times_backward_seek = process_null(array[6])
+        duration_backward_seek = process_null(array[7])
+        times_speed_up = process_null(array[8])
+        times_speed_down = process_null(array[9])
+        times_pause = process_null(array[10])
+        duration_pause = process_null(array[11])
         start_time = array[12]
         end_time = array[13]
-        sql = "insert into video_interaction(interaction_id, course_learner_id, video_id, duration, times_forward_seek, duration_forward_seek, times_backward_seek, duration_backward_seek, times_speed_up, times_speed_down, times_pause, duration_pause, start_time, end_time) values"
-        sql += "('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % (interaction_id, course_learner_id, video_id, duration, times_forward_seek, duration_forward_seek, times_backward_seek, duration_backward_seek, times_speed_up, times_speed_down, times_pause, duration_pause, start_time, end_time)
-        cursor.execute(sql)
+        sql = "insert into video_interaction(interaction_id, course_learner_id, video_id, duration, times_forward_seek, duration_forward_seek, times_backward_seek, duration_backward_seek, times_speed_up, times_speed_down, times_pause, duration_pause, start_time, end_time) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        data = (interaction_id, course_learner_id, video_id, duration, times_forward_seek, duration_forward_seek, times_backward_seek, duration_backward_seek, times_speed_up, times_speed_down, times_pause, duration_pause, start_time, end_time)
+        cursor.execute(sql, data)
         
     # File version
     '''

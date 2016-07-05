@@ -188,6 +188,15 @@ def cmp_datetime(a_datetime, b_datetime):
     else:
         return 0
 
+# takes an input string, and either returns if the string is 'NONE' or '', or the original string otherwise
+def process_null(inputString):
+    if isinstance(inputString, str) or isinstance(inputString, unicode):
+        if len(inputString)==0 or inputString=='NULL':
+            return None
+        else:
+            return inputString
+    return inputString
+
 # This main function is used to test above functions
 def main(argv):
     begindatetime_str = argv[0]
