@@ -44,6 +44,7 @@ The course data structure shouled be
 import os,gzip,mysql.connector,json
 import sys
 import ConfigParser
+import traceback
 
 from translation.LearnerMode import learner_mode, sessions
 from translation.ForumMode import forum_interaction, forum_sessions
@@ -131,49 +132,49 @@ def main(argv):
                 # 
                 #############################################
                 
-                course_id = ""
-                meta_files = os.listdir(metadata_path)
-                for file in meta_files:             
-                    if "course_structure" in file:
-                        course_structure_file = open(metadata_path + file, "r")
-                        jsonObject = json.loads(course_structure_file.read())
-                        for record in jsonObject:
-                            if jsonObject[record]["category"] == "course":
-                                # Course ID
-                                course_id = record
-                                if course_id.startswith("block-"):
-                                    course_id = course_id.replace("block-","course-")
-                                    course_id = course_id.replace("+type@course+block@course", "")
-                                if course_id.startswith("i4x://"):
-                                    course_id = course_id.replace("i4x://", "")
-                                    course_id = course_id.replace("course/", "")
-
-                                start_time = jsonObject[record]["metadata"]["start"]
-                                end_time = jsonObject[record]["metadata"]["end"]
-                    
-                                # Start & End data
-                                start_date = start_time[0:start_time.index("T")]
-                                end_date = end_time[0:end_time.index("T")]
-
-
-                log_files = os.listdir(zip_folder_path)
-                for log_file in log_files:
-                    if ".gz" in log_file:
-                        # check if current log file is in correct date / time range
-                        if log_file[18:28] >= start_date and log_file[18:28] <= end_date:
-                            
-                            print(log_file[18:28])
-
-                            path = filter_folder_path + log_file[0:-3]
-                            output_dailylog = open(path, 'wt')
-
-                            with gzip.open(zip_folder_path + log_file, 'rt') as f:
-                                for line in f:
-                                    jsonObject = json.loads(line)
-                                    if course_id in jsonObject["context"]["course_id"]:
-                                        output_dailylog.write(line)
-
-                            output_dailylog.close()
+                # course_id = ""
+                # meta_files = os.listdir(metadata_path)
+                # for file in meta_files:
+                #     if "course_structure" in file:
+                #         course_structure_file = open(metadata_path + file, "r")
+                #         jsonObject = json.loads(course_structure_file.read())
+                #         for record in jsonObject:
+                #             if jsonObject[record]["category"] == "course":
+                #                 # Course ID
+                #                 course_id = record
+                #                 if course_id.startswith("block-"):
+                #                     course_id = course_id.replace("block-","course-")
+                #                     course_id = course_id.replace("+type@course+block@course", "")
+                #                 if course_id.startswith("i4x://"):
+                #                     course_id = course_id.replace("i4x://", "")
+                #                     course_id = course_id.replace("course/", "")
+                #
+                #                 start_time = jsonObject[record]["metadata"]["start"]
+                #                 end_time = jsonObject[record]["metadata"]["end"]
+                #
+                #                 # Start & End data
+                #                 start_date = start_time[0:start_time.index("T")]
+                #                 end_date = end_time[0:end_time.index("T")]
+                #
+                #
+                # log_files = os.listdir(zip_folder_path)
+                # for log_file in log_files:
+                #     if ".gz" in log_file:
+                #         # check if current log file is in correct date / time range
+                #         if log_file[18:28] >= start_date and log_file[18:28] <= end_date:
+                #
+                #             print(log_file[18:28])
+                #
+                #             path = filter_folder_path + log_file[0:-3]
+                #             output_dailylog = open(path, 'wt')
+                #
+                #             with gzip.open(zip_folder_path + log_file, 'r') as f:
+                #                 for line in f:
+                #                     jsonObject = json.loads(line)
+                #                     if course_id in jsonObject["context"]["course_id"]:
+                #                         output_dailylog.write(line)
+                #
+                #             output_dailylog.close()
 
                 #######################################
                 # Filtering process end
@@ -237,14 +238,17 @@ def main(argv):
             
                 print "Error occurs when translating\t" + log_folder
                 print e
+                raise
 
     output_file.close()
 
 
 ###############################################################################
 if __name__ == '__main__':
-
-    main(sys.argv[1:])
+    configFile=sys.argv[1:]
+    if len(configFile) == 0:
+        configFile = 'config'
+    main(configFile)
 
     # data_path = "/Volumes/YuePassport/course_log_v2/"
     # daily_log_folder_path = "/Volumes/YuePassport/SurfDrive/Shared/WIS-EdX/logs/"

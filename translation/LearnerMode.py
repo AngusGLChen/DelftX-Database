@@ -177,14 +177,14 @@ def learner_mode(metadata_path, cursor):
     for array in learner_demographic_record:
         course_learner_id = array[0]
         gender = array[1]
-        year_of_birth = array[2]
+        year_of_birth = process_null(array[2])
         level_of_education = array[3]
         country = array[4]
         email = array[5]
         email = email.replace("\'", "")
-        sql = "insert into learner_demographic(course_learner_id, gender, year_of_birth, level_of_education, country, email) values"
-        sql += "('%s','%s','%s','%s','%s','%s');" % (course_learner_id, gender, year_of_birth, level_of_education, country, email)
-        cursor.execute(sql)
+        sql = "insert into learner_demographic(course_learner_id, gender, year_of_birth, level_of_education, country, email) values (%s,%s,%s,%s,%s,%s)"
+        data = (course_learner_id, gender, year_of_birth, level_of_education, country, email)
+        cursor.execute(sql, data)
     
     # File version
     '''
@@ -197,6 +197,13 @@ def learner_mode(metadata_path, cursor):
             writer.writerow(array)
         output_file.close()
     '''
+
+
+# takes an input string, and either returns if the string is 'NONE' or '', or the original string otherwise
+def process_null(inputString):
+    if len(inputString)==0 or inputString=='NULL':
+        return None
+    return inputString
         
 def sessions(metadata_path, log_path, cursor):
     
