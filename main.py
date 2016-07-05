@@ -75,7 +75,7 @@ def main(argv):
     
     course_list_path = data_path + "translated_course_list"
     if not os.path.isfile(course_list_path):
-        course_list_file = open(course_list_path, "w")
+        course_list_file = open(course_list_path, "w+")
         course_list_file.close()
         
     input_file = open(course_list_path, "r")
@@ -98,6 +98,7 @@ def main(argv):
     for log_folder in log_folders:
         
         if not os.path.isdir(data_path + log_folder):
+            print(data_path + log_folder+" is not a path.")
             continue
 
         if log_folder == "Daily_Logs":
