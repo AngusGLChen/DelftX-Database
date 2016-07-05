@@ -88,15 +88,15 @@ def forum_interaction(metadata_path, cursor):
         post_id = array[0]
         course_learner_id = array[1]
         post_type = array[2]
-        post_title = array[3]
-        post_content = array[4]
+        post_title = cleanUnicode(array[3])
+        post_content = cleanUnicode(array[4])
         post_timestamp = array[5]
         post_parent_id = array[6]
         post_thread_id = array[7]
-        sql = "insert into forum_interaction(post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id) values"
-        sql += "('%s','%s','%s','%s','%s','%s','%s', '%s');" % (post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id)  
+        sql = "insert into forum_interaction(post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id) values (%s,%s,%s,%s,%s,%s,%s, %s);"
+        data = (post_id, course_learner_id, post_type, post_title, post_content, post_timestamp, post_parent_id, post_thread_id)
 
-        cursor.execute(sql)
+        cursor.execute(sql, data)
             
     # File version
     '''
@@ -107,7 +107,10 @@ def forum_interaction(metadata_path, cursor):
         writer.writerow(array)
     output_file.close()
     '''
-    
+
+# removes really weird unicode characters
+def cleanUnicode(text):
+    return text;
 
 def forum_sessions(metadata_path, log_path, cursor):
     
