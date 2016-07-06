@@ -112,7 +112,10 @@ def forum_interaction(metadata_path, cursor):
 # provides unicode encoding compatible iwth mysql
 def cleanUnicode(text):
     #return text;
-    return unicodedata.normalize('NFC', text);
+    if isinstance(text, unicode):
+        return unicodedata.normalize('NFC', text);
+    else:
+        return text
     #return unicodedata.normalize('NFKD', text).encode('utf8', 'ignore');
 
 def forum_sessions(metadata_path, log_path, cursor):

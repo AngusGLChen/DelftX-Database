@@ -28,9 +28,11 @@ def quiz_mode(metadata_path, log_path, cursor):
     for question_id in quiz_question_map:
 
         question_due = ""
-        
+
         question_weight = quiz_question_map[question_id]
+
         quiz_question_parent = course_metadata_map["child_parent_map"][question_id]
+        
         if (question_due == "") and (quiz_question_parent in element_time_map_due):
             question_due = element_time_map_due[quiz_question_parent]
 
@@ -40,6 +42,7 @@ def quiz_mode(metadata_path, log_path, cursor):
                 question_due = element_time_map_due[quiz_question_parent]        
         
         quiz_question_type = block_type_map[quiz_question_parent]
+        question_due = process_null(question_due)
         # array_quiz = [question_id, quiz_question_type, question_weight, question_due]
         # quiz_question_record.append(array_quiz)
         sql = "insert into quiz_questions(question_id, question_type, question_weight, question_due) values (%s,%s,%s,%s)"
