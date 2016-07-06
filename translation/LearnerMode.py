@@ -40,6 +40,7 @@ def learner_mode(metadata_path, cursor):
     
     # Course_learner table
     course_learner_map = {}
+    learner_enrollment_time_map = {}
     
     # Enrolled learners set
     enrolled_learner_set = set()
@@ -67,6 +68,7 @@ def learner_mode(metadata_path, cursor):
                     learner_index_record.append(array)
 
                     course_learner_map[global_learner_id] = course_learner_id
+                    learner_enrollment_time_map[global_learner_id] = time
                     
             input_file.close()  
         
@@ -98,11 +100,12 @@ def learner_mode(metadata_path, cursor):
                 global_learner_id = record[1]
                 final_grade = record[3]
                 enrollment_mode = record[14].replace("\n", "")
-                certificate_status = record[7]                         
+                certificate_status = record[7]
+                register_time = learner_enrollment_time_map[global_learner_id]              
                 
                 if course_learner_map.has_key(global_learner_id):
                     num_certifiedLearners += 1
-                    array = [course_learner_map[global_learner_id], final_grade, enrollment_mode, certificate_status]
+                    array = [course_learner_map[global_learner_id], final_grade, enrollment_mode, certificate_status, register_time]
                     course_learner_record.append(array)
                 else:
                     num_uncertifiedLearners += 1
@@ -169,8 +172,9 @@ def learner_mode(metadata_path, cursor):
         final_grade = process_null(array[1])
         enrollment_mode = array[2]
         certificate_status = array[3]
-        sql = "insert into course_learner(course_learner_id, final_grade, enrollment_mode, certificate_status) values (%s,%s,%s,%s)"
-        data = (course_learner_id, final_grade, enrollment_mode, certificate_status)
+        register_time = process_null(array[4])
+        sql = "insert into course_learner(course_learner_id, final_grade, enrollment_mode, certificate_status, register_time) values (%s,%s,%s,%s,%s)"
+        data = (course_learner_id, final_grade, enrollment_mode, certificate_status, register_time)
         cursor.execute(sql, data)
     
     # Learner_demographic table
