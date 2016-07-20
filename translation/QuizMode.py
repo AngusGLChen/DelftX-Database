@@ -360,8 +360,9 @@ def quiz_sessions(metadata_path, log_path, cursor):
                                     end_time = event_logs[i]["event_time"]
                                                                 
                             else:
-                                
-                                end_time = event_logs[i]["event_time"]
+
+                                if event_logs[i]["event_time"] <= end_time + datetime.timedelta(hours=0.5):
+                                    end_time = event_logs[i]["event_time"]
                                 
                                 if quiz_sessions.has_key(session_id):
                                     quiz_sessions[session_id]["time_array"].append({"start_time":start_time, "end_time":end_time})
