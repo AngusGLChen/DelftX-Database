@@ -118,6 +118,47 @@ def cleanUnicode(text):
         return text
     #return unicodedata.normalize('NFKD', text).encode('utf8', 'ignore');
 
+
+# for detecting mentioned element info in the log
+def courseElementsFinder(eventlog, course_id):
+    elementsID = ""
+    elementsID = coucourseElementsFinder_string(eventlog["event_type"], course_id)
+    if elementsID == "":
+        elementsID = coucourseElementsFinder_string(eventlog["path"], course_id)
+    if elementsID == "":
+        elementsID = coucourseElementsFinder_string(eventlog["page"], course_id)
+    if elementsID == "":
+        elementsID = coucourseElementsFinder_string(eventlog["referer"], course_id)
+    return elementsID
+    
+
+def coucourseElementsFinder_string(eventlog_item, course_id):
+    elementsID = ""
+    courseId_filtered = course_id.split(":")[1]
+
+    if elementsID == "" and "+type@" in eventlog_item and "block-v1:" in eventlog_item:
+        templist = eventlog_item.split("/")
+        for tempstring in templist:
+            if "+type@" in tempstring and "block-v1:" in tempstring:
+                elementsID = tempstring
+
+    if elementsID == "" and "courseware/" in eventlog_item:
+        templist = eventlog_item.split("/")
+        tempflag = False
+        for tempstring in templist:
+            if tempstring == "courseware":
+                tempflag = True
+            else:
+                if tempflag is True and tempstring != "":
+                    elementsID = ("block-v1:" + 
+                                  courseId_filtered + 
+                                  "+type@chapter+block@" + 
+                                  tempstring)
+                    break
+
+    return elementsID
+
+
 def forum_sessions(metadata_path, log_path, cursor):
     
     # Collect course information
@@ -165,7 +206,7 @@ def forum_sessions(metadata_path, log_path, cursor):
 
                 log_file = open(log_path + log_file,"r")
                 lines = log_file.readlines()
-                        
+
                 for line in lines:
                     
                     jsonObject = json.loads(line)
@@ -190,11 +231,24 @@ def forum_sessions(metadata_path, log_path, cursor):
                         event_time = event_time[0:19]
                         event_time = event_time.replace("T", " ")
                         event_time = datetime.datetime.strptime(event_time,"%Y-%m-%d %H:%M:%S")
+
+                        # added for relevant elements
+                        event_page = ""
+                        if jsonObject.has_key("page"):
+                            event_page = str(jsonObject["page"])
+                        
+                        event_path = ""
+                        if jsonObject.has_key("path"):
+                            event_path = str(jsonObject["path"])
+                        
+                        event_referer = ""
+                        if jsonObject.has_key("referer"):
+                            event_referer = str(jsonObject["referer"])
                                                
                         if course_learner_id in course_learner_id_set:
-                            learner_all_event_logs[course_learner_id].append({"event_time":event_time, "event_type":event_type})
+                            learner_all_event_logs[course_learner_id].append({"event_time":event_time, "event_type":event_type, "page":event_page, "path":event_path, "referer":event_referer})
                         else:
-                            learner_all_event_logs[course_learner_id] = [{"event_time":event_time, "event_type":event_type}]
+                            learner_all_event_logs[course_learner_id] = [{"event_time":event_time, "event_type":event_type, "page":event_page, "path":event_path, "referer":event_referer}]
                             course_learner_id_set.add(course_learner_id)
                             
                 # For forum session separation
@@ -202,6 +256,7 @@ def forum_sessions(metadata_path, log_path, cursor):
                     
                     course_learner_id = learner                    
                     event_logs = learner_all_event_logs[learner]
+                    course_id = course_learner_id.split("_")[0]
                     
                     # Sorting
                     event_logs.sort(cmp=cmp_datetime, key=operator.itemgetter('event_time'))
@@ -212,10 +267,17 @@ def forum_sessions(metadata_path, log_path, cursor):
                     times_search = 0
                     
                     final_time = ""
+
+                    # represent the elements which just before the session.
+                    session_rel_element_pre = ""
+                    # represent the elements which is mentioned in the session.
+                    session_rel_element_cur = ""
                     
                     for i in range(len(event_logs)):
-                        
-                        if session_id =="":                            
+
+                        rel_element_cur = courseElementsFinder(event_logs[i], course_id)
+
+                        if session_id == "":                            
                             
                             if event_logs[i]["event_type"] in ["forum_activity", "edx.forum.searched"]:
                                 # Initialization
@@ -223,7 +285,9 @@ def forum_sessions(metadata_path, log_path, cursor):
                                 start_time = event_logs[i]["event_time"]
                                 end_time = event_logs[i]["event_time"]
                                 if event_logs[i]["event_type"] == "edx.forum.searched":
-                                    times_search += 1                                                        
+                                    times_search += 1
+                                # Added for relevant element id
+                                session_rel_element_cur = rel_element_cur                                                        
                         else:
                             
                             if event_logs[i]["event_type"] in ["forum_activity", "edx.forum.searched"]:
@@ -234,7 +298,12 @@ def forum_sessions(metadata_path, log_path, cursor):
                                     duration = (end_time - start_time).days * 24 * 60 * 60 + (end_time - start_time).seconds
                                     
                                     if duration > 5:
-                                        array = [session_id, course_learner_id, times_search, start_time, end_time, duration]
+                                        rel_element_id = ""
+                                        if session_rel_element_cur != "":
+                                            rel_element_id = session_rel_element_cur
+                                        else:
+                                            rel_element_id = session_rel_element_pre
+                                        array = [session_id, course_learner_id, times_search, start_time, end_time, duration, rel_element_id]
                                         forum_sessions_record.append(array)
                                     
                                     final_time = event_logs[i]["event_time"]
@@ -245,21 +314,32 @@ def forum_sessions(metadata_path, log_path, cursor):
                                     end_time = event_logs[i]["event_time"]
                                     if event_logs[i]["event_type"] == "edx.forum.searched":
                                         times_search = 1
+                                    # Added for relevant element id
+                                    session_rel_element_cur = rel_element_cur
                                         
                                 else:
                                     
                                     end_time = event_logs[i]["event_time"]
                                     if event_logs[i]["event_type"] == "edx.forum.searched":
                                         times_search += 1
+                                    if session_rel_element_cur == "":
+                                        session_rel_element_cur = rel_element_cur
                                                         
                             else:
                                 
-                                end_time = event_logs[i]["event_time"]
+                                if event_logs[i]["event_time"] <= end_time + datetime.timedelta(hours=0.5):
+                                    end_time = event_logs[i]["event_time"]
+
                                 session_id = session_id + "_" + str(start_time) + "_" + str(end_time)
                                 duration = (end_time - start_time).days * 24 * 60 * 60 + (end_time - start_time).seconds
                                 
-                                if duration > 5:     
-                                    array = [session_id, course_learner_id, times_search, start_time, end_time, duration]
+                                if duration > 5:
+                                    rel_element_id = ""
+                                    if session_rel_element_cur != "":
+                                        rel_element_id = session_rel_element_cur
+                                    else:
+                                        rel_element_id = session_rel_element_pre
+                                    array = [session_id, course_learner_id, times_search, start_time, end_time, duration, rel_element_id]
                                     forum_sessions_record.append(array)
                                     
                                 final_time = event_logs[i]["event_time"]
@@ -269,6 +349,11 @@ def forum_sessions(metadata_path, log_path, cursor):
                                 start_time = ""
                                 end_time = ""
                                 times_search = 0
+
+                        # session_rel_element_pre is used for recording the element id 
+                        # of the most recent event logs before the session logs
+                        if rel_element_cur != "":
+                            session_rel_element_pre = rel_element_cur
   
                     if final_time != "":
                         new_logs = []                
@@ -290,8 +375,9 @@ def forum_sessions(metadata_path, log_path, cursor):
         start_time = array[3]
         end_time = array[4]
         duration = process_null(array[5])
-        sql = "insert into forum_sessions (session_id, course_learner_id, times_search, start_time, end_time, duration) values (%s,%s,%s,%s,%s,%s)"
-        data = (session_id, course_learner_id, times_search, start_time, end_time, duration)
+        rel_element_id = array[6]
+        sql = "insert into forum_sessions (session_id, course_learner_id, times_search, start_time, end_time, duration, relevent_element_id) values (%s,%s,%s,%s,%s,%s,%s)"
+        data = (session_id, course_learner_id, times_search, start_time, end_time, duration, rel_element_id)
         cursor.execute(sql, data)
             
     # File version

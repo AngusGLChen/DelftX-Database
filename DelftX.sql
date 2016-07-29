@@ -180,6 +180,7 @@ times_search int,
 start_time datetime,
 end_time datetime,
 duration int,
+relevent_element_id varchar(250),
 PRIMARY KEY (session_id),
 FOREIGN KEY (course_learner_id) REFERENCES learner_index(course_learner_id),
 INDEX `index` (`course_learner_id`)
