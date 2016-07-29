@@ -23,8 +23,8 @@
 
 4. (MAC OSX) Setting PATH
     * Editting bash profile ```vim ~/.bash_profile```
-    * Setting the path ```PATH=$PATH:/usr/local/mysql/bin```
-    * Adding this in bash file:
+    * Setting the path in the bash profile ```PATH=$PATH:/usr/local/mysql/bin```
+    * Adding the following code in the bash profile:
     
     ```
     alias mysql=/usr/local/mysql/bin/mysql
