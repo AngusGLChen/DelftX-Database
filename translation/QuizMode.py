@@ -103,6 +103,10 @@ def quiz_mode(metadata_path, log_path, cursor):
                 
                     if jsonObject["event_type"] in submission_event_collection:
                         
+                        # Some daily logs don't have the "user_id" value
+                        if "user_id" not in jsonObject["context"]:
+                            continue
+                        
                         global_learner_id = jsonObject["context"]["user_id"]
                         
                         if global_learner_id != "":
@@ -275,6 +279,10 @@ def quiz_sessions(metadata_path, log_path, cursor):
                 for line in lines:                              
                     
                     jsonObject = json.loads(line)
+                    
+                    # Some daily logs don't have the "user_id" value
+                    if "user_id" not in jsonObject["context"]:
+                        continue
                     
                     global_learner_id = jsonObject["context"]["user_id"]
                     event_type = str(jsonObject["event_type"])

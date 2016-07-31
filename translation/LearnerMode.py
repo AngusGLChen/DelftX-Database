@@ -243,6 +243,10 @@ def sessions(metadata_path, log_path, cursor):
                     
                     jsonObject = json.loads(line)
                     
+                    # Some daily logs don't have the "user_id" value
+                    if "user_id" not in jsonObject["context"]:
+                        continue
+                    
                     global_learner_id = jsonObject["context"]["user_id"]
                     event_type = str(jsonObject["event_type"])
                     

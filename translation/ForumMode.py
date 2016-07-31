@@ -210,6 +210,10 @@ def forum_sessions(metadata_path, log_path, cursor):
                 for line in lines:
                     
                     jsonObject = json.loads(line)
+                    
+                    # Some daily logs don't have the "user_id" value
+                    if "user_id" not in jsonObject["context"]:
+                        continue
 
                     if jsonObject["context"]["user_id"] == "":
                         continue

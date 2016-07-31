@@ -70,6 +70,10 @@ def video_interaction(metadata_path, log_path, cursor):
                     
                     if jsonObject["event_type"] in video_event_types:
                         
+                        # Some daily logs don't have the "user_id" value
+                        if "user_id" not in jsonObject["context"]:
+                            continue
+                        
                         global_learner_id = jsonObject["context"]["user_id"]
                         
                         if global_learner_id != "":
@@ -142,6 +146,10 @@ def video_interaction(metadata_path, log_path, cursor):
                     
                     # For navigation events                                    
                     if jsonObject["event_type"] in navigation_event_types:
+                        
+                        # Some daily logs don't have the "user_id" value
+                        if "user_id" not in jsonObject["context"]:
+                            continue
                         
                         global_learner_id = jsonObject["context"]["user_id"]
                         
