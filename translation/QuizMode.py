@@ -312,7 +312,7 @@ def quiz_sessions(metadata_path, log_path, cursor):
                         
                         if session_id == "":
                             
-                            if "problem+block" in event_logs[i]["event_type"] or "_problem;_" in event_logs[i]["event_type"]:
+                            if "problem+block" in event_logs[i]["event_type"] or "_problem;_" in event_logs[i]["event_type"] or event_logs[i]["event_type"] in submission_event_collection:
                                 
                                 event_type_array = event_logs[i]["event_type"].split("/")
                                 
@@ -343,9 +343,14 @@ def quiz_sessions(metadata_path, log_path, cursor):
                                     
                                     final_time = event_logs[i]["event_time"]
                                     
-                                    if "problem+block" in event_logs[i]["event_type"] or "_problem;_" in event_logs[i]["event_type"]:
+                                    if "problem+block" in event_logs[i]["event_type"] or "_problem;_" in event_logs[i]["event_type"] or event_logs[i]["event_type"] in submission_event_collection:
                                         event_type_array = event_logs[i]["event_type"].split("/")
-                                        question_id = event_type_array[4]
+                                        
+                                        if "problem+block" in event_logs[i]["event_type"]:
+                                            question_id = event_type_array[4]
+                                    
+                                        if "_problem;_" in event_logs[i]["event_type"]:
+                                            question_id = event_type_array[6].replace(";_", "/")
                                         
                                         if question_id in child_parent_map.keys():
                                             parent_block_id = child_parent_map[question_id]
@@ -402,6 +407,8 @@ def quiz_sessions(metadata_path, log_path, cursor):
                         updated_time_array.append({"start_time":start_time, "end_time":end_time})                        
                         start_time = quiz_sessions[session_id]["time_array"][i]["start_time"]
                         end_time = quiz_sessions[session_id]["time_array"][i]["end_time"]
+                        if i == len(quiz_sessions[session_id]["time_array"]) - 1:
+                            updated_time_array.append({"start_time":start_time, "end_time":end_time})
                     else:
                         end_time = quiz_sessions[session_id]["time_array"][i]["end_time"]
                         
