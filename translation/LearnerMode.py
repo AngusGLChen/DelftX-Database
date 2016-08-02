@@ -101,7 +101,10 @@ def learner_mode(metadata_path, cursor):
                 final_grade = record[3]
                 enrollment_mode = record[14].replace("\n", "")
                 certificate_status = record[7]
-                register_time = learner_enrollment_time_map[global_learner_id]              
+                
+                register_time = ""
+                if course_learner_map.has_key(global_learner_id):
+                    register_time = learner_enrollment_time_map[global_learner_id]              
                 
                 if course_learner_map.has_key(global_learner_id):
                     num_certifiedLearners += 1
