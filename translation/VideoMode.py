@@ -20,22 +20,47 @@ def video_interaction(metadata_path, log_path, cursor):
     
     # Video-related event types
     video_event_types = []
-    video_event_types.append("play_video")
-    video_event_types.append("edx.video.played")
-    video_event_types.append("stop_video")
-    video_event_types.append("edx.video.stopped")
+
+    video_event_types.append("hide_transcript")
+    video_event_types.append("edx.video.transcript.hidden")
+    
+    video_event_types.append("edx.video.closed_captions.hidden")
+    video_event_types.append("edx.video.closed_captions.shown")
+    
+    video_event_types.append("load_video")
+    video_event_types.append("edx.video.loaded")
+    
     video_event_types.append("pause_video")
     video_event_types.append("edx.video.paused")
+    
+    video_event_types.append("play_video")
+    video_event_types.append("edx.video.played")
+    
     video_event_types.append("seek_video")
     video_event_types.append("edx.video.position.changed")
+    
+    video_event_types.append("show_transcript")
+    video_event_types.append("edx.video.transcript.shown")
+    
     video_event_types.append("speed_change_video")
     
+    video_event_types.append("stop_video")
+    video_event_types.append("edx.video.stopped")
+    
+    video_event_types.append("video_hide_cc_menu")
+    video_event_types.append("edx.video.language_menu.hidden")
+    
+    video_event_types.append("video_show_cc_menu")
+    video_event_types.append("edx.video.language_menu.shown")
+    
+    '''
     # Navigation-related event types
     navigation_event_types = []
     navigation_event_types.append("page_close")
     navigation_event_types.append("seq_goto")
     navigation_event_types.append("seq_next")
     navigation_event_types.append("seq_prev")
+    '''
     
     learner_video_event_logs = {}
     updated_learner_video_event_logs = {}
@@ -144,8 +169,8 @@ def video_interaction(metadata_path, log_path, cursor):
                                 learner_video_event_logs[course_learner_id] = [{"event_time":event_time, "event_type":event_type, "video_id":video_id}]
                                 course_learner_id_set.add(course_learner_id)
                     
-                    # For navigation events                                    
-                    if jsonObject["event_type"] in navigation_event_types:
+                    # For non-video-related events                                    
+                    if jsonObject["event_type"] not in video_event_types:
                         
                         # Some daily logs don't have the "user_id" value
                         if "user_id" not in jsonObject["context"]:
@@ -300,7 +325,7 @@ def video_interaction(metadata_path, log_path, cursor):
                                     continue
                                     
                                 # 3/4  Page changed/Session closed
-                                if log["event_type"] in navigation_event_types:
+                                if log["event_type"] not in video_event_types:
                                     
                                     video_end_time = log["event_time"]
                                     watch_duration = (video_end_time - video_start_time).seconds                
