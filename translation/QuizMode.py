@@ -54,6 +54,8 @@ def quiz_mode(metadata_path, log_path, cursor):
 
     # Problem check
     submission_event_collection.append("problem_check")     # Server
+    
+    '''
     submission_event_collection.append("save_problem_check")
     submission_event_collection.append("problem_check_fail")
     submission_event_collection.append("save_problem_check_fail")
@@ -77,6 +79,7 @@ def quiz_mode(metadata_path, log_path, cursor):
     # Show answer
     submission_event_collection.append("problem_show")
     submission_event_collection.append("showanswer")
+    '''
     
     current_date = course_metadata_map["start_date"]   
     end_next_date = getNextDay(course_metadata_map["end_date"])
