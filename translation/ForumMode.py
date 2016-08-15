@@ -110,6 +110,7 @@ def forum_interaction(metadata_path, cursor):
     '''
 
 # provides unicode encoding compatible iwth mysql
+
 def cleanUnicode(text):
     #return text;
     if isinstance(text, unicode):
