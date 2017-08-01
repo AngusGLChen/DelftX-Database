@@ -383,7 +383,7 @@ def video_interaction(metadata_path, log_path, cursor):
         end_time = video_interaction_map[interaction_id]["end_time"]
         
         if "times_pause" in video_interaction_map[interaction_id]:
-            times_pause = video_interaction_map[interaction_id]["watch_duration"]
+            times_pause = video_interaction_map[interaction_id]["times_pause"]
             duration_pause = video_interaction_map[interaction_id]["duration_pause"]
         else:
             times_pause = 0

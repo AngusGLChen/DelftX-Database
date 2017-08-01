@@ -1,3 +1,5 @@
+<span style="color:red">**This repository is outdated and deprecated.**</span>
+
 # Building Database for Courses Data of MOOCs (EDX)
 
 ## 1. Database Building
