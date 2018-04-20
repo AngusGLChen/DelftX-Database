@@ -1,4 +1,4 @@
-## ***This repository is outdated and deprecated.***
+## ***This repository is outdated and deprecated. Please check the latest version here: https://github.com/AngusGLChen/DelftX-Daily-Database***
 
 # Building Database for Courses Data of MOOCs (EDX)
 
